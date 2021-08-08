@@ -4,6 +4,7 @@
 
 ### SYSTEM ###
 .idea
+app.db
 
 ### Flask ###
 instance/*
