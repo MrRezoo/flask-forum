@@ -7,13 +7,13 @@ from app.users.routes import blueprint as users_blueprint
 
 
 def register_blueprint(flask_app):
-    app.register_blueprint(flask_app)
-    app.register_blueprint(flask_app)
+    flask_app.register_blueprint(users_blueprint)
+    flask_app.register_blueprint(posts_blueprint)
 
 
 def register_error_handlers(flask_app):
-    app.register_error_handler(404, app_exception.page_not_found)
-    app.register_error_handler(500, app_exception.server_error)
+    flask_app.register_error_handler(404, app_exception.page_not_found)
+    flask_app.register_error_handler(500, app_exception.server_error)
 
 
 app = Flask(__name__)
