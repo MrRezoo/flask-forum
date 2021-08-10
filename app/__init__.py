@@ -22,4 +22,7 @@ register_error_handlers(app)
 app.config.from_object('config.DevConfig')
 
 db = SQLAlchemy(app)
+
+from app.users.models import User # is here due to circular_imports for db.create_all() use
+
 db.create_all()
