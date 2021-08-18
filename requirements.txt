@@ -1,1 +1,4 @@
 Flask~=2.0.1
+kavenegar~=1.1.2
+alembic~=1.6.5
+SQLAlchemy~=1.4.20

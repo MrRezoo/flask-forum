@@ -1,8 +1,7 @@
 from flask import Flask
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 
 import app.exceptions as app_exception
+from app.extentions import db, migrate
 from app.posts.routes import blueprint as posts_blueprint
 from app.users.routes import blueprint as users_blueprint
 
@@ -21,8 +20,8 @@ app = Flask(__name__)
 register_blueprint(app)
 register_error_handlers(app)
 app.config.from_object('config.DevConfig')
+db.init_app(app)
 
-db = SQLAlchemy(app)
 from app.users.models import User  # is here due to circular_imports for db.create_all() use
 
-migrate = Migrate(app, db)
+migrate.init_app(app, db)

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    {% include 'external/form_errors.html' %}
+    <form action="" method="post">
+    {{ form.csrf_token }}
+    {{ form.code.label }}{{ form.code }}
+        <input type="submit" class="btn btn-primary" value="Verify">
+    </form>
+{% endblock %}
