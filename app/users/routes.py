@@ -2,11 +2,11 @@ import datetime
 import random
 
 from flask import Blueprint, render_template, session, redirect, flash, url_for
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 
 from app.extentions import sms_api, db
-from app.users.forms import UserRegistrationForm, UserCodeVerifyForm, UserLoginForm
-from app.users.models import Code, User
+from app.users.forms import UserRegistrationForm, UserCodeVerifyForm, UserLoginForm, EmptyForm
+from app.users.models import Code, User, Follow
 
 blueprint = Blueprint('users', __name__)
 
@@ -76,3 +76,52 @@ def logout():
 @blueprint.route('/profile')
 def profile():
     return render_template('users/profile.html')
+
+
+@blueprint.route('/user/<int:id>')
+def user(id):
+    following = False
+    user = User.query.get_or_404(id)
+    form = EmptyForm()
+    relation = Follow.query.filter_by(follower=current_user.id, followed=user.id).first()
+    if relation:
+        following = True
+    return render_template('users/user.html', user=user, form=form, following=following)
+
+
+@blueprint.route('/follow/<int:user_id>', methods=['POST'])
+def follow(user_id):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(id=user_id).first()
+        if user is None:
+            flash('User Not Found', 'danger')
+            return redirect('/')
+        if user == current_user:
+            flash('you cant follow yourself', 'warning')
+            return redirect('/')
+        relation = Follow(follower=current_user.id, followed=user_id)
+        db.session.add(relation)
+        db.session.commit()
+        flash(f'you followed {user.phone}', 'success')
+        return redirect(url_for('users.user', id=user.id))
+    return redirect('/')
+
+
+@blueprint.route('/unfollow/<int:user_id>', methods=['POST'])
+def unfollow(user_id):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(id=user_id).first()
+        if user is None:
+            flash('User Not Found', 'danger')
+            return redirect('/')
+        if user == current_user:
+            flash('you cant unfollow yourself', 'warning')
+            return redirect('/')
+        relation = Follow.query.filter_by(follower=current_user.id, followed=user_id).first()
+        db.session.delete(relation)
+        db.session.commit()
+        flash(f'you unfollowed {user.phone}', 'success')
+        return redirect(url_for('users.user', id=user.id))
+    return redirect('/')
