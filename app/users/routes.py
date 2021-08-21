@@ -100,7 +100,7 @@ def follow(user_id):
         if user == current_user:
             flash('you cant follow yourself', 'warning')
             return redirect('/')
-        relation = Follow(follower=current_user.id, followed=user_id)
+        relation = Follow(follower=current_user.id, followed=user.id)
         db.session.add(relation)
         db.session.commit()
         flash(f'you followed {user.phone}', 'success')
@@ -114,14 +114,14 @@ def unfollow(user_id):
     if form.validate_on_submit():
         user = User.query.filter_by(id=user_id).first()
         if user is None:
-            flash('User Not Found', 'danger')
+            flash('User not found', 'danger')
             return redirect('/')
         if user == current_user:
             flash('you cant unfollow yourself', 'warning')
             return redirect('/')
-        relation = Follow.query.filter_by(follower=current_user.id, followed=user_id).first()
+        relation = Follow.query.filter_by(follower=current_user.id, followed=user.id).first()
         db.session.delete(relation)
         db.session.commit()
-        flash(f'you unfollowed {user.phone}', 'success')
+        flash(f'you unfollowed {user.phone}', 'info')
         return redirect(url_for('users.user', id=user.id))
     return redirect('/')
