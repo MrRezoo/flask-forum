@@ -2,9 +2,10 @@ import datetime
 import random
 
 from flask import Blueprint, render_template, session, redirect, flash, url_for
+from flask_login import login_user, logout_user
 
 from app.extentions import sms_api, db
-from app.users.forms import UserRegistrationForm, UserCodeVerifyForm
+from app.users.forms import UserRegistrationForm, UserCodeVerifyForm, UserLoginForm
 from app.users.models import Code, User
 
 blueprint = Blueprint('users', __name__)
@@ -49,6 +50,29 @@ def verify():
             user = User(phone=user_phone)
             db.session.add(user)
             db.session.commit()
-            flash('your account created successfully','info')
+            flash('your account created successfully', 'info')
             return redirect('/')
     return render_template('users/verify.html', form=form)
+
+
+@blueprint.route('/login', methods=['POST', 'GET'])
+def login():
+    form = UserLoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(phone=form.phone.data).first()
+        login_user(user)
+        flash("you logged in", "success")
+        redirect('/')
+    return render_template('users/login.html', form=form)
+
+
+@blueprint.route('/logout', methods=['GET', 'POST'])
+def logout():
+    logout_user()
+    flash("you logged out", "warning")
+    return redirect('/')
+
+
+@blueprint.route('/profile')
+def profile():
+    return render_template('users/profile.html')
