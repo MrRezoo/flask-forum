@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import ValidationError
 
+from app.extentions import db
 from app.users.models import Code, User
 
 
@@ -12,6 +13,7 @@ class UserRegistrationForm(FlaskForm):
         codes = Code.query.filter_by(phone=phone.data)
         if codes:
             Code.query.filter_by(phone=phone.data).delete()
+            db.session.commit()
 
         user = User.query.filter_by(phone=phone.data).first()
         if user:
